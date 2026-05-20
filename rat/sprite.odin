@@ -94,13 +94,8 @@ render_sprites :: proc(world: ^World) {
 
 		raylib.DrawTexturePro(
 			frame,
-			raylib.Rectangle{position.x, position.y, dims.x, dims.y},
-			raylib.Rectangle {
-				position.x,
-				position.y,
-				dims.x * transform.scale.x * f32(appearance.hflip),
-				dims.y * transform.scale.y * f32(appearance.vflip),
-			},
+			raylib.Rectangle{0, 0, dims.x * f32(appearance.hflip), dims.y * f32(appearance.vflip)},
+			raylib.Rectangle{position.x, position.y, dims.x * transform.scale.x, dims.y * transform.scale.y},
 			{0, 0},
 			transform.rotation,
 			appearance.tint,

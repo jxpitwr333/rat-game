@@ -5,13 +5,20 @@ import "rat"
 import "vendor:raylib"
 
 Player :: struct {
-	speed:       f32,
-	health:      i32,
-	is_grounded: bool,
-	hsp:         f32,
-	vsp:         f32,
-	eid:         rat.Entity,
+	speed:          f32,
+	health:         i32,
+	is_grounded:    bool,
+	hsp:            f32,
+	vsp:            f32,
+	eid:            rat.Entity,
+	coyote_counter: i32,
+	buffer_counter: i32,
 }
+
+GRAVITY: f32 : 0.3
+COYOTE_MAX: i32 : 6
+JUMP_HEIGHT: f32 : 4
+MAX_BUFFER: i32 : 4
 
 create_player :: proc(world: ^rat.World) -> Player {
 	base_size: f32 = 8
@@ -43,7 +50,6 @@ create_player :: proc(world: ^rat.World) -> Player {
 	}
 }
 
-GRAVITY: f32 : 0.3
 
 update_player :: proc(player: ^Player, world: ^rat.World, level: ^Level, tile_lib: ^TileLib) {
 	// get components
@@ -54,7 +60,12 @@ update_player :: proc(player: ^Player, world: ^rat.World, level: ^Level, tile_li
 	// gather input
 	rightKey: f32 = raylib.IsKeyDown(.RIGHT) ? 1 : 0
 	leftKey: f32 = raylib.IsKeyDown(.LEFT) ? 1 : 0
+	jumpKey: bool = raylib.IsKeyDown(.Z)
+	jumpKeyReleased: bool = raylib.IsKeyReleased(.Z)
+
 	move: f32 = rightKey - leftKey
+
+	if move != 0 do appearance.hflip = i32(move)
 
 	// update grounded state
 	cast_bbox: [2]f32 = {bbox.width, bbox.height}
@@ -70,6 +81,36 @@ update_player :: proc(player: ^Player, world: ^rat.World, level: ^Level, tile_li
 	// update vert movement
 	if !player.is_grounded {
 		player.vsp += GRAVITY
+
+		if player.coyote_counter > 0 {
+			player.coyote_counter -= 1
+			if jumpKey {
+				jump(player, world)
+			}
+		}
+	} else {
+		player.coyote_counter = COYOTE_MAX
+	}
+
+	if jumpKey &&
+	   !check_tile_collision(
+			   level,
+			   tile_lib,
+			   transform.position - [2]f32{0, JUMP_HEIGHT},
+			   cast_bbox,
+		   ) {
+		player.buffer_counter = MAX_BUFFER
+	}
+
+	if player.buffer_counter > 0 {
+		player.buffer_counter -= 1
+		if player.is_grounded {
+			jump(player, world)
+		}
+	}
+
+	if jumpKeyReleased && player.vsp > 0 {
+		player.vsp *= 0.5
 	}
 
 	//check collisions
@@ -116,4 +157,17 @@ update_player :: proc(player: ^Player, world: ^rat.World, level: ^Level, tile_li
 	}
 
 	transform.position.y += player.vsp
+}
+
+jump :: proc(player: ^Player, world: ^rat.World) {
+	transform := &world.transforms.data[player.eid]
+
+	transform.scale.x = 0.7 * RENDER_SCALE
+	transform.scale.y = 1.3 * RENDER_SCALE
+	// FIX ME THIS AFFECTS ACTUAL SCALE THAT CONFLICTS WITH COLLISIONS AND NOT JUST VISUAL SCALE FIX NOW CRITICAL
+
+	// add a timer that resets scale
+	// requires a timer system at engine level
+	player.vsp = -JUMP_HEIGHT
+	player.buffer_counter = 0
 }

@@ -35,8 +35,8 @@ render_primitive_rects :: proc(world: ^World) {
 				{
 					transform.position.x,
 					transform.position.y,
-					rect.width * transform.scale[0],
-					rect.height * transform.scale[1],
+					rect.width * transform.scale.x,
+					rect.height * transform.scale.y,
 				},
 			),
 			appearance.offset,

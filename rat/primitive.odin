@@ -9,7 +9,6 @@ Shape :: union {
 	f32, // radius
 }
 
-// these need to be structs for #soa to work
 // structs for both primitives and collisions.
 rectangle_t :: struct {
 	width, height: f32,
@@ -24,9 +23,8 @@ Circle :: struct {
 render_primitive_rects :: proc(world: ^World) {
 	for i in 0 ..< world.primitives_rect.count {
 		eid := world.primitives_rect.dense[i]
-		rect := &world.primitives_rect.data[i]
 
-		// draw
+		rect, _ := get(&world.primitives_rect, eid)
 		transform, _ := get(&world.transforms, eid)
 		appearance, _ := get(&world.appearances, eid)
 
@@ -49,9 +47,8 @@ render_primitive_rects :: proc(world: ^World) {
 render_primitive_circs :: proc(world: ^World) {
 	for i in 0 ..< world.primitives_circ.count {
 		eid := world.primitives_circ.dense[i]
-		circle := &world.primitives_circ.data[i]
+		circle, _ := get(&world.primitives_circ, eid)
 
-		// draw
 		transform, _ := get(&world.transforms, eid)
 		appearance, _ := get(&world.appearances, eid)
 		raylib.DrawCircleV(

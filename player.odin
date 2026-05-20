@@ -53,9 +53,9 @@ create_player :: proc(world: ^rat.World) -> Player {
 
 update_player :: proc(player: ^Player, world: ^rat.World, level: ^Level, tile_lib: ^TileLib) {
 	// get components
-	transform := &world.transforms.data[player.eid]
-	bbox := &world.colliders_aabb.data[player.eid]
-	appearance := &world.appearances.data[player.eid]
+	transform, _ := rat.get(&world.transforms, player.eid)
+	bbox, _ := rat.get(&world.colliders_aabb, player.eid)
+	appearance, _ := rat.get(&world.appearances, player.eid)
 
 	// gather input
 	rightKey: f32 = raylib.IsKeyDown(.RIGHT) ? 1 : 0
@@ -160,7 +160,7 @@ update_player :: proc(player: ^Player, world: ^rat.World, level: ^Level, tile_li
 }
 
 jump :: proc(player: ^Player, world: ^rat.World) {
-	transform := &world.transforms.data[player.eid]
+	transform, _ := rat.get(&world.transforms, player.eid)
 
 	transform.scale.x = 0.7 * RENDER_SCALE
 	transform.scale.y = 1.3 * RENDER_SCALE

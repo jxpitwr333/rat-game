@@ -58,8 +58,8 @@ get_sprite :: proc(lib: ^SpriteLibrary, name: string) -> ^Sprite {
 render_sprites :: proc(world: ^World) {
 	for i in 0 ..< world.sprite_data.count {
 		eid := world.sprite_data.dense[i]
-		sprite_data := &world.sprite_data.data[i]
 
+		sprite_data, _ := get(&world.sprite_data, eid)
 		appearance, _ := get(&world.appearances, eid)
 		transform, _ := get(&world.transforms, eid)
 
@@ -95,7 +95,12 @@ render_sprites :: proc(world: ^World) {
 		raylib.DrawTexturePro(
 			frame,
 			raylib.Rectangle{0, 0, dims.x * f32(appearance.hflip), dims.y * f32(appearance.vflip)},
-			raylib.Rectangle{position.x, position.y, dims.x * transform.scale.x, dims.y * transform.scale.y},
+			raylib.Rectangle {
+				position.x,
+				position.y,
+				dims.x * transform.scale.x,
+				dims.y * transform.scale.y,
+			},
 			{0, 0},
 			transform.rotation,
 			appearance.tint,

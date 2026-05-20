@@ -7,7 +7,7 @@ import "core:slice"
 SparseSet :: struct($T: typeid) {
 	sparse: []i32,
 	dense:  []i32,
-	data:   #soa[]T,
+	data:   []T,
 	count:  i32,
 }
 
@@ -15,7 +15,7 @@ create_sparse_set :: proc($T: typeid, max: i32) -> SparseSet(T) {
 	s := SparseSet(T) {
 		sparse = make([]i32, max),
 		dense  = make([]i32, max),
-		data   = make(#soa[]T, max),
+		data   = make([]T, max),
 		count  = 0,
 	}
 
@@ -55,11 +55,11 @@ remove :: proc(set: ^SparseSet($T), eid: i32) {
 	set.count -= 1
 }
 
-get :: proc(set: ^SparseSet($T), eid: i32) -> (T, bool) {
+get :: proc(set: ^SparseSet($T), eid: i32) -> (^T, bool) {
 	assert((int(eid) < len(set.sparse)), "Sparse Set: ID out of range.")
 
 	idx := set.sparse[eid]
 	if idx == -1 || idx >= set.count do return {}, false
 
-	return set.data[idx], true
+	return &set.data[idx], true
 }

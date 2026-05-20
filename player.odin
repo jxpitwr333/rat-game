@@ -21,20 +21,13 @@ JUMP_HEIGHT: f32 : 4
 MAX_BUFFER: i32 : 4
 
 create_player :: proc(world: ^rat.World) -> Player {
-	base_size: f32 = 8
-	scaled_size := base_size * RENDER_SCALE
-
 	return Player {
 		speed = 5,
 		health = 3,
 		is_grounded = false,
 		eid = rat.create_object(
 			world,
-			rat.transform_t {
-				position = {256, 256},
-				rotation = 0,
-				scale = {RENDER_SCALE, RENDER_SCALE},
-			},
+			rat.transform_t{position = {64, 64}, rotation = 0, scale = {1, 1}},
 			rat.ImageParams {
 				type = .Sprite,
 				sprite_name = "rat",
@@ -45,7 +38,7 @@ create_player :: proc(world: ^rat.World) -> Player {
 				hflip = 1,
 				vflip = 1,
 			},
-			[2]f32{scaled_size, scaled_size},
+			[2]f32{8, 8},
 		),
 	}
 }
@@ -69,7 +62,7 @@ update_player :: proc(player: ^Player, world: ^rat.World, level: ^Level, tile_li
 
 	// update grounded state
 	cast_bbox: [2]f32 = {bbox.width, bbox.height}
-	if check_tile_collision(level, tile_lib, transform.position + [2]f32{0.0, 0.1}, cast_bbox) {
+	if check_tile_collision(level, tile_lib, transform.position + [2]f32{0.0, 1.0}, cast_bbox) {
 		player.is_grounded = true
 	} else {
 		player.is_grounded = false
@@ -162,8 +155,8 @@ update_player :: proc(player: ^Player, world: ^rat.World, level: ^Level, tile_li
 jump :: proc(player: ^Player, world: ^rat.World) {
 	transform, _ := rat.get(&world.transforms, player.eid)
 
-	transform.scale.x = 0.7 * RENDER_SCALE
-	transform.scale.y = 1.3 * RENDER_SCALE
+	transform.scale.x = 0.7
+	transform.scale.y = 1.3
 	// FIX ME THIS AFFECTS ACTUAL SCALE THAT CONFLICTS WITH COLLISIONS AND NOT JUST VISUAL SCALE FIX NOW CRITICAL
 
 	// add a timer that resets scale

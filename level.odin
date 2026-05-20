@@ -108,19 +108,16 @@ load_level :: proc(tile_lib: ^TileLib, level_path: string) -> (level: Level, ok:
 	return level, true
 }
 
-// scale: only because my tiles are 8x8 and my window 512x512
-RENDER_SCALE :: 4
-
 draw_level :: proc(level: Level, tile_lib: TileLib) {
 
 	for id, i in level.tiles {
 		if id == -1 do continue
 
-		x := f32(i % int(level.width)) * f32(level.tile_size) * RENDER_SCALE
-		y := f32(i / int(level.width)) * f32(level.tile_size) * RENDER_SCALE
+		x := f32(i % int(level.width)) * f32(level.tile_size)
+		y := f32(i / int(level.width)) * f32(level.tile_size)
 
 		tile := tile_lib.tiles[id]
-		raylib.DrawTextureEx(tile.texture, {x, y}, 0, RENDER_SCALE, raylib.WHITE)
+		raylib.DrawTextureEx(tile.texture, {x, y}, 0, 1, raylib.WHITE)
 	}
 }
 
@@ -142,14 +139,14 @@ check_tile_collision :: proc(
 	/* shape is either an [2]f32 for width and height (rect) or f32 for radius (circle)*/
 ) -> bool {
 
-	effective_tile_size := f32(level.tile_size) * RENDER_SCALE
+	tile_sizef := f32(level.tile_size)
 
 	switch val in bbox {
 	case [2]f32:
-		start_x: i32 = i32(position.x / effective_tile_size)
-		start_y: i32 = i32(position.y / effective_tile_size)
-		end_x: i32 = i32((position.x + val.x - 0.1) / effective_tile_size)
-		end_y: i32 = i32((position.y + val.y - 0.1) / effective_tile_size)
+		start_x: i32 = i32(position.x / tile_sizef)
+		start_y: i32 = i32(position.y / tile_sizef)
+		end_x: i32 = i32((position.x + val.x - 0.1) / tile_sizef)
+		end_y: i32 = i32((position.y + val.y - 0.1) / tile_sizef)
 
 		for y := start_y; y <= end_y; y += 1 {
 			for x := start_x; x <= end_x; x += 1 {
@@ -161,10 +158,10 @@ check_tile_collision :: proc(
 		// Circle collision with tiles is more complex,
 		// but for a simple grid we can check the bounding box or the center.
 		// For now, let's treat it as a square bounding box.
-		start_x: i32 = i32((position.x - val) / effective_tile_size)
-		start_y: i32 = i32((position.y - val) / effective_tile_size)
-		end_x: i32 = i32((position.x + val - 0.1) / effective_tile_size)
-		end_y: i32 = i32((position.y + val - 0.1) / effective_tile_size)
+		start_x: i32 = i32((position.x - val) / tile_sizef)
+		start_y: i32 = i32((position.y - val) / tile_sizef)
+		end_x: i32 = i32((position.x + val - 0.1) / tile_sizef)
+		end_y: i32 = i32((position.y + val - 0.1) / tile_sizef)
 
 		for y := start_y; y <= end_y; y += 1 {
 			for x := start_x; x <= end_x; x += 1 {

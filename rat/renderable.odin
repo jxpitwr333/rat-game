@@ -2,6 +2,12 @@ package rat
 
 import "vendor:raylib"
 
+// i prefer this.
+/*Alignment :: enum {
+	TOP_LEFT,
+	CENTER,
+}*/
+
 Appearance :: struct {
 	tint:   raylib.Color,
 	offset: [2]f32,

@@ -134,12 +134,16 @@ is_tile_solid :: proc(tile_lib: ^TileLib, id: i32) -> bool {
 check_tile_collision :: proc(
 	level: ^Level,
 	tile_lib: ^TileLib,
-	position: [2]f32,
+	crude_position: [2]f32,
 	bbox: rat.Shape,
 	/* shape is either an [2]f32 for width and height (rect) or f32 for radius (circle)*/
+	offset: [2]f32,
 ) -> bool {
 
 	tile_sizef := f32(level.tile_size)
+
+	// normalized position
+	position := crude_position + offset
 
 	switch val in bbox {
 	case [2]f32:

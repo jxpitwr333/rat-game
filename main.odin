@@ -10,6 +10,9 @@ WINDOW_HEIGHT: f32 : 512
 GAME_WIDTH: i32 : 128
 GAME_HEIGHT: i32 : 128
 
+dest_rect := raylib.Rectangle{0, 0, WINDOW_WIDTH, WINDOW_HEIGHT}
+src_rect := raylib.Rectangle{0.0, 0.0, f32(GAME_WIDTH), -(f32(GAME_HEIGHT))}
+
 // init
 main :: proc() {
 	world := rat.create_world()
@@ -36,7 +39,6 @@ main :: proc() {
 
 	for !raylib.WindowShouldClose() {
 
-		dest_rect := raylib.Rectangle{0, 0, WINDOW_WIDTH, WINDOW_HEIGHT}
 
 		for &player in players {
 			update_player(&player, &world, &level, &tile_lib)
@@ -52,7 +54,6 @@ main :: proc() {
 
 		raylib.BeginDrawing()
 		raylib.ClearBackground(raylib.BLACK)
-		src_rect := raylib.Rectangle{0.0, 0.0, f32(GAME_WIDTH), -(f32(GAME_HEIGHT))}
 
 		raylib.SetTextureFilter(target.texture, .POINT)
 		raylib.DrawTexturePro(target.texture, src_rect, dest_rect, {0, 0}, 0.0, raylib.WHITE)

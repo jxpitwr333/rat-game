@@ -33,7 +33,7 @@ create_player :: proc(world: ^rat.World) -> Player {
 				sprite_name = "rat",
 				image_index = 0,
 				image_speed = 0.1,
-				offset = {0, 0},
+				offset = {-4, -4},
 				color = raylib.WHITE,
 				hflip = 1,
 				vflip = 1,
@@ -60,9 +60,15 @@ update_player :: proc(player: ^Player, world: ^rat.World, level: ^Level, tile_li
 
 	if move != 0 do appearance.hflip = i32(move)
 
+	cast_bbox: [2]f32 = {bbox.width * transform.scale.x, bbox.height * transform.scale.y}
 	// update grounded state
-	cast_bbox: [2]f32 = {bbox.width, bbox.height}
-	if check_tile_collision(level, tile_lib, transform.position + [2]f32{0.0, 1.0}, cast_bbox) {
+	if check_tile_collision(
+		level,
+		tile_lib,
+		transform.position + [2]f32{0.0, 1.0},
+		cast_bbox,
+		appearance.offset,
+	) {
 		player.is_grounded = true
 	} else {
 		player.is_grounded = false
@@ -91,6 +97,7 @@ update_player :: proc(player: ^Player, world: ^rat.World, level: ^Level, tile_li
 			   tile_lib,
 			   transform.position - [2]f32{0, JUMP_HEIGHT},
 			   cast_bbox,
+			   appearance.offset,
 		   ) {
 		player.buffer_counter = MAX_BUFFER
 	}
@@ -114,12 +121,14 @@ update_player :: proc(player: ^Player, world: ^rat.World, level: ^Level, tile_li
 			tile_lib,
 			transform.position + [2]f32{player.hsp, 0.0},
 			cast_bbox,
+			appearance.offset,
 		) {
 			for !check_tile_collision(
 				    level,
 				    tile_lib,
 				    transform.position + [2]f32{one_pixel_x, 0.0},
 				    cast_bbox,
+				    appearance.offset,
 			    ) {
 				transform.position.x += one_pixel_x
 			}
@@ -136,12 +145,14 @@ update_player :: proc(player: ^Player, world: ^rat.World, level: ^Level, tile_li
 			tile_lib,
 			transform.position + [2]f32{0.0, player.vsp},
 			cast_bbox,
+			appearance.offset,
 		) {
 			for !check_tile_collision(
 				    level,
 				    tile_lib,
 				    transform.position + [2]f32{0.0, one_pixel_y},
 				    cast_bbox,
+				    appearance.offset,
 			    ) {
 				transform.position.y += one_pixel_y
 			}

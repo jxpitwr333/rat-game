@@ -12,6 +12,7 @@ World :: struct {
 	primitives_rect: SparseSet(rectangle_t),
 	primitives_circ: SparseSet(Circle),
 	sprite_data:     SparseSet(SpriteData),
+	timers:          [dynamic]Timer,
 }
 
 create_world :: proc() -> World {
@@ -26,6 +27,7 @@ create_world :: proc() -> World {
 		primitives_rect = create_sparse_set(rectangle_t, MAX_ENTITIES),
 		primitives_circ = create_sparse_set(Circle, MAX_ENTITIES),
 		sprite_data = create_sparse_set(SpriteData, MAX_ENTITIES),
+		timers = make([dynamic]Timer, 0, 32),
 	}
 }
 

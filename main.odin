@@ -39,7 +39,7 @@ main :: proc() {
 
 	for !raylib.WindowShouldClose() {
 
-
+		rat.UpdateTimers(&world.timers)
 		for &player in players {
 			update_player(&player, &world, &level, &tile_lib)
 		}

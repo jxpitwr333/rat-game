@@ -13,6 +13,7 @@ Player :: struct {
 	eid:            rat.Entity,
 	coyote_counter: i32,
 	buffer_counter: i32,
+	target_scale:   [2]f32,
 }
 
 GRAVITY: f32 : 0.3
@@ -25,6 +26,11 @@ create_player :: proc(world: ^rat.World) -> Player {
 		speed = 5,
 		health = 3,
 		is_grounded = false,
+		hsp = 0,
+		vsp = 0,
+		coyote_counter = 0,
+		buffer_counter = 0,
+		target_scale = [2]f32{1, 1},
 		eid = rat.create_object(
 			world,
 			rat.transform_t{position = {64, 64}, rotation = 0, scale = {1, 1}},
@@ -49,6 +55,12 @@ update_player :: proc(player: ^Player, world: ^rat.World, level: ^Level, tile_li
 	transform, _ := rat.get(&world.transforms, player.eid)
 	bbox, _ := rat.get(&world.colliders_aabb, player.eid)
 	appearance, _ := rat.get(&world.appearances, player.eid)
+
+	// lerp scale
+	if transform.scale != player.target_scale {
+		transform.scale.x = math.lerp(transform.scale.x, player.target_scale.x, f32(0.1))
+		transform.scale.y = math.lerp(transform.scale.y, player.target_scale.y, f32(0.1))
+	}
 
 	// gather input
 	rightKey: f32 = raylib.IsKeyDown(.RIGHT) ? 1 : 0
@@ -163,15 +175,21 @@ update_player :: proc(player: ^Player, world: ^rat.World, level: ^Level, tile_li
 	transform.position.y += player.vsp
 }
 
+reset_transform :: proc(t: rawptr) {
+	player := (^Player)(t)
+	player.target_scale.x = 1.0
+	player.target_scale.y = 1.0
+}
+
 jump :: proc(player: ^Player, world: ^rat.World) {
-	transform, _ := rat.get(&world.transforms, player.eid)
+	player.target_scale.x = 0.7
+	player.target_scale.y = 1.3
 
-	transform.scale.x = 0.7
-	transform.scale.y = 1.3
-	// FIX ME THIS AFFECTS ACTUAL SCALE THAT CONFLICTS WITH COLLISIONS AND NOT JUST VISUAL SCALE FIX NOW CRITICAL
+	rat.AddTimer(
+		&world.timers,
+		rat.Timer{counter = 0, data = player, frame_target = 15, onComplete = reset_transform},
+	)
 
-	// add a timer that resets scale
-	// requires a timer system at engine level
 	player.vsp = -JUMP_HEIGHT
 	player.buffer_counter = 0
 }
